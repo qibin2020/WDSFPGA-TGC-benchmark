@@ -2,7 +2,6 @@
 
 module tgcnn (
     input clk,
-    input reset,
     input [699:0] model_inp,
     output reg [17:0] model_out
 );
@@ -25,21 +24,12 @@ module tgcnn (
     tgcnn_stage4 stage4 (.model_inp(stage4_inp), .model_out(stage4_out));
 
 always @(posedge clk) begin
-    if (reset == 1'b1) begin
-        stage0_inp <= 0;
-        stage1_inp <= 0;
-        stage2_inp <= 0;
-        stage3_inp <= 0;
-        stage4_inp <= 0;
-        model_out <= 0;
-    end else begin
         stage0_inp <= model_inp;
         stage1_inp <= stage0_out;
         stage2_inp <= stage1_out;
         stage3_inp <= stage2_out;
         stage4_inp <= stage3_out;
         model_out <= stage4_out;
-    end
 end
 
 endmodule

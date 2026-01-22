@@ -12,7 +12,6 @@ module top(
 
 tgcnn inst (
     .clk(clk),
-    .reset(reset),
     .model_inp(iport),
     .model_out(oport)
 );

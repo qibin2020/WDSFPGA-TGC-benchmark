@@ -9,8 +9,8 @@ NPROC := 8
 # py_exec := $(VTR_DIR)/.venv/bin/python3
 py_exec := python3
 # build_hw_arch := COFFE_22nm/k6FracN10LB_mem20K_complexDSP_customSB_22nm
-build_hw_arch := xilinx/simple-7series
-# build_hw_arch := COFFE_22nm/stratix10_arch
+# build_hw_arch := xilinx/simple-7series
+build_hw_arch := COFFE_22nm/stratix10_arch
 # build_hw_arch := common/arch
 
 .PHONY: help setup test run clean
