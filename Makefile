@@ -1,10 +1,17 @@
 # WDSFPGA Benchmark Template Makefile
 # This Makefile provides targets for setting up, building, testing, and running VTR (Verilog-to-Routing).
 
-VTR_DIR := vtr-verilog-to-routing
+# VTR_DIR := vtr-verilog-to-routing
+VTR_DIR := /workspace
 RESULTS := results
 TEMP := temp
-NPROC := $(shell nproc)
+NPROC := 8
+# py_exec := $(VTR_DIR)/.venv/bin/python3
+py_exec := python3
+# build_hw_arch := COFFE_22nm/k6FracN10LB_mem20K_complexDSP_customSB_22nm
+# build_hw_arch := xilinx/simple-7series
+build_hw_arch := COFFE_22nm/stratix10_arch
+# build_hw_arch := zeroasic/z1000/z1000
 
 .PHONY: help setup test run clean
 
@@ -35,7 +42,7 @@ build-vtr:
 # Run basic regression test to verify VTR installation
 test:
 	@echo "Running basic regression test..."
-	$(VTR_DIR)/.venv/bin/python3 $(VTR_DIR)/vtr_flow/scripts/run_vtr_task.py $(VTR_DIR)/vtr_flow/tasks/regression_tests/vtr_reg_basic/basic_timing
+	$(py_exec) $(VTR_DIR)/vtr_flow/scripts/run_vtr_task.py $(VTR_DIR)/vtr_flow/tasks/regression_tests/vtr_reg_basic/basic_timing
 	@echo "Test complete."
 
 # Run VTR flow on Verilog files and parse results
@@ -43,13 +50,18 @@ run: run-vtr-flow parse-vtr-flow
 
 run-vtr-flow:
 	@echo "Running VTR flow on Verilog files..."
-	$(VTR_DIR)/.venv/bin/python3 $(VTR_DIR)/vtr_flow/scripts/run_vtr_flow.py ./verilog/top.v $(VTR_DIR)/vtr_flow/arch/COFFE_22nm/k6FracN10LB_mem20K_complexDSP_customSB_22nm.xml -include $(filter-out ./verilog/top.v, $(wildcard ./verilog/*.v))
+	$(py_exec) \
+		$(VTR_DIR)/vtr_flow/scripts/run_vtr_flow.py \
+		./verilog/top.v \
+		$(VTR_DIR)/vtr_flow/arch/$(build_hw_arch).xml \
+		-include $(filter-out ./verilog/top.v, \
+			$(wildcard ./verilog/*.*) $(wildcard ./verilog/*/*.*))
 	@echo "VTR flow run complete."
 
 parse-vtr-flow:
 	@echo "Parsing VTR flow results..."
 	@mkdir -p $(RESULTS)
-	$(VTR_DIR)/.venv/bin/python3 $(VTR_DIR)/vtr_flow/scripts/python_libs/vtr/parse_vtr_flow.py $(TEMP) parse_config.txt > $(RESULTS)/parse_results.txt || true
+	$(py_exec) $(VTR_DIR)/vtr_flow/scripts/python_libs/vtr/parse_vtr_flow.py $(TEMP) parse_config.txt > $(RESULTS)/parse_results.txt || true
 	@sh -c 'cp -f $(TEMP)/*.pre-vpr.blif $(RESULTS)/ 2>/dev/null || true'
 	@echo "Parsing complete."
 	    
